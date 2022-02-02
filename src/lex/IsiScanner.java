@@ -17,6 +17,7 @@ public class IsiScanner {
 			System.out.println(txtConteudo);
 			System.out.println("_________________");
 			content = txtConteudo.toCharArray(); //converte a string num array de caracteres
+//			System.out.println(content[4]);
 			pos=0; //começa no 0
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -44,18 +45,13 @@ public class IsiScanner {
 					estado = 1;
 				}
 				else if(isDigit(atualChar)) {
-					estado = 2;
 					termo += atualChar;
+					estado = 2;
 				}
 				else if(isSpace(atualChar)) {
 					estado = 0;
 				}
 				else if (isEqual(atualChar)) {
-//					termo += atualChar;
-//					token = new Token();
-//					token.setTipo(Token.TK_OPERADOR);
-//					token.setTexto(termo);
-//					return token;
 					termo += atualChar;
 					estado = 3;
 				}
@@ -72,7 +68,7 @@ public class IsiScanner {
 					estado = 1;
 					termo += atualChar;
 				}
-				else if(isSpace(atualChar) || isOperator(atualChar) || isEOF(atualChar)) {
+				else if(isSpace(atualChar) || isOperator(atualChar) || isEqual(atualChar) || isEOF(atualChar)) {
 					if (!isEOF(atualChar)) {
 						back();
 					}
@@ -82,16 +78,16 @@ public class IsiScanner {
 					return token;
 				}
 				else {
-					System.out.println("ERRROR: Identificador desconhecido");
+					System.out.println("ERROR: Identificador desconhecido");
 				}
 				break;
 			case 2:
-				if(isDigit(atualChar) || atualChar == '.') {
+				if(isDigit(atualChar)) {
 					estado = 2;
 					termo += atualChar;
 					
 				}
-				else if(!isChar(atualChar) || isEOF(atualChar)) {
+				else if(isSpace(atualChar) || isChar(atualChar) || isOperator(atualChar) || isEqual(atualChar) || isEOF(atualChar)) {
 					if(!isEOF(atualChar)) {
 						back();
 					}
@@ -105,42 +101,47 @@ public class IsiScanner {
 				}
 				break;
 			case 3:
-				if (isOperator(atualChar) || isEqual(atualChar)) {
+				if (isEqual(atualChar)) {
 					termo += atualChar;
-					estado = 4;
-				}
-				else if (!isOperator(atualChar) || (isEqual(atualChar)) || isEOF(atualChar)) {
-					if (!isEOF(atualChar)) {
+					token = new Token();
+					token.setTexto(termo);
+					token.setTipo(token.TK_OPERADOR);
+					return token;
+				} 
+				else if (isSpace(atualChar) || isChar(atualChar) || isDigit(atualChar) || isEOF(atualChar)) {
+					if(!isEOF(atualChar)) {
 						back();
 					}
 					token = new Token();
-					token.setTipo(token.TK_ATRIBUICAO);
 					token.setTexto(termo);
+					token.setTipo(token.TK_ATRIBUICAO);
+					return token;
+				}
+				else {
+					System.out.println("ERROR: Simbolo desconhecido ou erro de construção");
+				}
+				break;
+			case 4:
+				if (isEqual(atualChar)) {
+					termo += atualChar;
+					token = new Token();
+					token.setTexto(termo);
+					token.setTipo(token.TK_OPERADOR);
+					return token;
+				}
+				else if (isChar(atualChar) || isDigit(atualChar) || isOperator(atualChar) || isEOF(atualChar)) {
+					if (!isEOF()) {
+						back();
+					}
+					token = new Token();
+					token.setTexto(termo);
+					token.setTipo(token.TK_OPERADOR);
 					return token;
 				}
 				else {
 					System.out.println("ERROR: Simbolo desconhecido");
 				}
 				break;
-			case 4:
-				termo += atualChar;
-				token = new Token();
-				token.setTipo(Token.TK_OPERADOR);
-				token.setTexto(termo);
-				return token;
-//				if(!isEqual(atualChar) || (!isOperator(atualChar)) || isEOF(atualChar)) {
-//					if (!isEOF(atualChar)) {
-//						back();
-//					}
-//					token = new Token();
-//					token.setTipo(token.TK_OPERADOR);
-//					token.setTexto(termo);
-//					return token;
-//				}
-//				else {
-//					System.out.println("ERROR: Simbolo desconhecido");
-//				}
-//				break;
 			}			
 		}	
 	}
